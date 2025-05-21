@@ -35,14 +35,14 @@ const App = () => (
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/sale" element={<Sale />} />
-                <Route path="/brands/:brandSlug" element={<BrandDetail />} />
                 <Route path="/auth" element={<Auth />} />
 
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/brands/:brandSlug" element={<BrandDetail />} />
                   <Route path="/cart" element={<Cart />} />
                 </Route>
 
