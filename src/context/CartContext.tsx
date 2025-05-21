@@ -86,8 +86,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const getTotalPrice = () => {
     return cart.reduce((total, item) => {
-      const price = item.product.discountPercentage
-        ? item.product.price * (1 - item.product.discountPercentage / 100)
+      const price = item.product.discount_percentage
+        ? item.product.price * (1 - item.product.discount_percentage / 100)
         : item.product.price;
       return total + price * item.quantity;
     }, 0);

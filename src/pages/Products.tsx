@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
-import { products } from '@/data/products';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import ProductCard from '@/components/ProductCard';
+import { Product } from '@/data/products';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,15 +16,41 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const Products = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
+  const [allBrands, setAllBrands] = useState<string[]>([]);
+  const [allCategories, setAllCategories] = useState<string[]>([]);
 
-  // Extract unique brands and categories
-  const allBrands = [...new Set(products.map(product => product.brand))];
-  const allCategories = [...new Set(products.map(product => product.category))];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*');
+          
+        if (error) throw error;
+        
+        if (data) {
+          setProducts(data);
+          // Extract unique brands and categories
+          setAllBrands([...new Set(data.map(product => product.brand))]);
+          setAllCategories([...new Set(data.map(product => product.category))]);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
 
   const toggleBrandFilter = (brand: string) => {
     if (selectedBrands.includes(brand)) {
@@ -59,8 +86,8 @@ const Products = () => {
     }
 
     // Filter by price range
-    const price = product.discountPercentage
-      ? product.price * (1 - product.discountPercentage / 100)
+    const price = product.discount_percentage
+      ? product.price * (1 - product.discount_percentage / 100)
       : product.price;
     
     if (price < priceRange[0] || price > priceRange[1]) {
@@ -74,11 +101,11 @@ const Products = () => {
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'price-low-high':
-        return (a.price * (1 - (a.discountPercentage || 0) / 100)) - 
-               (b.price * (1 - (b.discountPercentage || 0) / 100));
+        return (a.price * (1 - (a.discount_percentage || 0) / 100)) - 
+               (b.price * (1 - (b.discount_percentage || 0) / 100));
       case 'price-high-low':
-        return (b.price * (1 - (b.discountPercentage || 0) / 100)) - 
-               (a.price * (1 - (a.discountPercentage || 0) / 100));
+        return (b.price * (1 - (b.discount_percentage || 0) / 100)) - 
+               (a.price * (1 - (a.discount_percentage || 0) / 100));
       case 'rating':
         return b.rating - a.rating;
       case 'newest':
@@ -88,6 +115,28 @@ const Products = () => {
         return b.rating - a.rating;
     }
   });
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Football Boots</h1>
+        <div className="animate-pulse">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="w-full sm:w-2/3 h-10 bg-gray-200 rounded"></div>
+            <div className="w-full sm:w-1/3 h-10 bg-gray-200 rounded"></div>
+          </div>
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="lg:w-1/4 h-96 bg-gray-200 rounded"></div>
+            <div className="lg:w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-64 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

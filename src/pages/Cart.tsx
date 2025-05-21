@@ -35,8 +35,8 @@ const Cart = () => {
         {/* Cart Items */}
         <div className="lg:w-2/3">
           {cart.map((item) => {
-            const discountedPrice = item.product.discountPercentage
-              ? item.product.price * (1 - item.product.discountPercentage / 100)
+            const discountedPrice = item.product.discount_percentage
+              ? item.product.price * (1 - item.product.discount_percentage / 100)
               : item.product.price;
             
             return (
@@ -98,7 +98,7 @@ const Cart = () => {
                         </div>
                         
                         <div>
-                          {item.product.discountPercentage ? (
+                          {item.product.discount_percentage ? (
                             <div className="text-right">
                               <span className="font-bold text-brand-red">
                                 ${(discountedPrice * item.quantity).toFixed(2)}
