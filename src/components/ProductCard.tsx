@@ -3,7 +3,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Product } from '@/data/products';
+import { Tables } from '@/integrations/supabase/types';
+
+type Product = Tables<'products'>;
 
 interface ProductCardProps {
   product: Product;
@@ -11,8 +13,8 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Calculate the discounted price if applicable
-  const discountedPrice = product.discountPercentage
-    ? product.price * (1 - product.discountPercentage / 100)
+  const discountedPrice = product.discount_percentage
+    ? product.price * (1 - product.discount_percentage / 100)
     : null;
 
   return (
@@ -24,9 +26,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             alt={product.name}
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
           />
-          {product.discountPercentage && (
+          {product.discount_percentage && (
             <Badge className="absolute top-2 right-2 bg-brand-red text-white">
-              {product.discountPercentage}% OFF
+              {product.discount_percentage}% OFF
             </Badge>
           )}
         </div>
@@ -56,7 +58,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <svg
                 key={i}
                 className={`w-4 h-4 ${
-                  i < Math.floor(product.rating)
+                  i < Math.floor(Number(product.rating))
                     ? "text-yellow-500"
                     : "text-gray-300"
                 }`}
